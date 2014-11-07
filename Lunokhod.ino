@@ -22,9 +22,11 @@
 #define SHOOTPIN1 49
 #define SHOOTPIN2 51
 #define SHOOTPIN3 53
-#define SPEED 128// 0-FULL STOP 255 - full speed
+#define SPEED 128  // 0-FULL STOP 255 - full speed
+#define DIFF -20 // IF right is faster than left add differnce to compencate
 
 #define DELAY 10
+#define DELAYBETWEEN 200
 
 #include "Picaso_Serial_4DLib.h"
 #include "Picaso_Const4D.h"
@@ -434,6 +436,7 @@ void go()
           shoot(SHOOTPIN3, duration[i]);
           break;        
     }
+    delay(DELAYBETWEEN);
   }
 }
 
@@ -476,15 +479,15 @@ String commandName(unsigned int command)
 
 void move_forward(unsigned int duration)
 {
-  //forward @ speed A
+  //forward @ speed LEFT
   digitalWrite(12, HIGH); //Establishes forward direction of Channel A
   digitalWrite(9, LOW);   //Disengage the Brake for Channel A
-  analogWrite(3, SPEED);   //Spins the motor on Channel A at speed
+  analogWrite(3, SPEED+DIFF);   //Spins the motor on Channel A at speed
   
-  //forward @ speed B
+  //forward @ speed RIGHT
   digitalWrite(13, LOW); //Establishes forward direction of Channel B
   digitalWrite(8, LOW);   //Disengage the Brake for Channel B
-  analogWrite(11, SPEED);   //Spins the motor on Channel B at speed
+  analogWrite(11, SPEED-DIFF);   //Spins the motor on Channel B at speed
   
   delay(duration * DELAY);
   stop();
@@ -495,7 +498,7 @@ void rotate_right(unsigned int duration)
   //forward @ speed B
   digitalWrite(13, LOW); //Establishes forward direction of Channel B
   digitalWrite(8, LOW);   //Disengage the Brake for Channel B
-  analogWrite(11, SPEED);   //Spins the motor on Channel B at speed
+  analogWrite(11, SPEED-DIFF);   //Spins the motor on Channel B at speed
   
   delay(duration * DELAY);
   stop();
@@ -505,7 +508,7 @@ void rotate_left(unsigned int duration)
 {
   digitalWrite(12, HIGH); //Establishes forward direction of Channel A
   digitalWrite(9, LOW);   //Disengage the Brake for Channel A
-  analogWrite(3, SPEED);   //Spins the motor on Channel A at speed
+  analogWrite(3, SPEED+DIFF);   //Spins the motor on Channel A at speed
   delay(duration * DELAY);
   stop();
 }
