@@ -22,6 +22,7 @@
 #define SHOOTPIN1 49
 #define SHOOTPIN2 51
 #define SHOOTPIN3 53
+#define SPEED 128// 0-FULL STOP 255 - full speed
 
 #define DELAY 10
 
@@ -56,20 +57,13 @@ void setup()
   
   pinMode(13, OUTPUT); //Initiates Motor Channel A pin
   pinMode(8, OUTPUT); //Initiates Brake Channel A pin
-  
-//  
-//  pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
-//  digitalWrite(RESETLINE, 1);  // Reset the Display via D4
-//  delay(100);
-//  digitalWrite(RESETLINE, 0);  // unReset the Display via D4
-//  delay(5000);
+
   DisplaySerial.begin(9600) ;
   Display.TimeLimit4D   = 5000 ; // 5 second timeout on all commands
   Display.gfx_Cls();
   Display.gfx_ScreenMode(PORTRAIT) ;
   Display.putstr("Lunakhod loading...") ;
-//  HWLOGGING.begin(9600);
-//  delay(5000); - uncomment in final
+  delay(1000);
 }
 
 #define INIT_STATE 0
@@ -91,25 +85,9 @@ int current_command = 0;
 int state = INIT_STATE;
 void loop()
 {
-//    //forward @ full speed A
-//  digitalWrite(12, HIGH); //Establishes forward direction of Channel A
-//  digitalWrite(9, LOW);   //Disengage the Brake for Channel A
-//  analogWrite(3, 255);   //Spins the motor on Channel A at full speed
-//  
-//    //forward @ full speed B
-//  digitalWrite(13, LOW); //Establishes forward direction of Channel B
-//  digitalWrite(8, LOW);   //Disengage the Brake for Channel B
-//  analogWrite(11, 255);   //Spins the motor on Channel B at full speed
-//  
-//  delay(1000);
-  
   Display.touch_Set(TOUCH_ENABLE) ;
   Display.touch_Set(TOUCH_REGIONDEFAULT) ;
   drawInitialScreen();
-// Draw a button as a List Box (sunken)
-//   Display.gfx_Selection(3, RED, YELLOW); // pre-select "Item3"
-//  Display.gfx_Button(DOWN, 30, 30, GREEN, WHITE, FONT3, 1, 1, "Item1\nItem2\nItem3\nItem4");
-
 
   while(1)
   {
@@ -196,12 +174,6 @@ void loop()
           state = INIT_STATE;
           drawInitialScreen();
         }
-//        } else if(insideRegion(1, 10, x, y, BUTTON_W)) // OK
-//        {
-//          //TODO: Save
-//          state = INIT_STATE;
-//          drawInitialScreen();
-//        }
       break;
       
       case ROTATE_STATE:
@@ -222,12 +194,6 @@ void loop()
             state = INIT_STATE;
             drawInitialScreen();
           }
-  //        } else if(insideRegion(1, 10, x, y, BUTTON_W)) // OK
-  //        {
-  //          //TODO: Save
-  //          state = INIT_STATE;
-  //          drawInitialScreen();
-  //        }
      break;
      case GO_STATE:
         if (insideRegion(0, OK_BUTTON_ROW, x, y, BUTTON_W)) // GO
@@ -374,16 +340,13 @@ void drawKeyboardScreen()
 
 void okBackButtons()
 {
-//  drawButton("BACK", 0, 6, BUTTON_UP);
   drawButton("OK", 0, OK_BUTTON_ROW, BUTTON_UP);
 }
 void drawRotateScreen()
 {
-   Display.gfx_Cls();
+  Display.gfx_Cls();
   drawButton("LEFT",  0, 1, BUTTON_UP);
   drawButton("RIGHT", 0, 2, BUTTON_UP);
-//  drawButton("ROTATE 180 ",  0, 3, BUTTON_UP);
-//  drawButton("ERACE",  0, 5, BUTTON_UP);
   okBackButtons();
 }
 
@@ -435,7 +398,6 @@ void debugCoordinates()
 
 void go()
 {
-  //TODO:go
   Display.gfx_Cls();
   drawButton("GO", 0, OK_BUTTON_ROW, BUTTON_DOWN);
   for (int i=0; i!= index; i++)
@@ -448,22 +410,26 @@ void go()
       case MOVE:
             HWLOGGING.println("move forward");
             move_forward(duration[i]);          
-
           break;
+          
       case ROTATE_LEFT:
             HWLOGGING.println("rotate left");
             rotate_left(duration[i]);          
           break;
+          
       case ROTATE_RIGHT:
             HWLOGGING.println("rotate right");      
             rotate_right(duration[i]);          
           break;          
+          
       case SHOOT1:
           shoot(SHOOTPIN1, duration[i]);
           break;
+          
       case SHOOT2:
           shoot(SHOOTPIN2, duration[i]);
           break;  
+          
       case SHOOT3:
           shoot(SHOOTPIN3, duration[i]);
           break;        
@@ -510,15 +476,15 @@ String commandName(unsigned int command)
 
 void move_forward(unsigned int duration)
 {
-  //forward @ full speed A
+  //forward @ speed A
   digitalWrite(12, HIGH); //Establishes forward direction of Channel A
   digitalWrite(9, LOW);   //Disengage the Brake for Channel A
-  analogWrite(3, 255);   //Spins the motor on Channel A at full speed
+  analogWrite(3, SPEED);   //Spins the motor on Channel A at speed
   
-    //forward @ full speed B
+  //forward @ speed B
   digitalWrite(13, LOW); //Establishes forward direction of Channel B
   digitalWrite(8, LOW);   //Disengage the Brake for Channel B
-  analogWrite(11, 255);   //Spins the motor on Channel B at full speed
+  analogWrite(11, SPEED);   //Spins the motor on Channel B at speed
   
   delay(duration * DELAY);
   stop();
@@ -526,10 +492,10 @@ void move_forward(unsigned int duration)
 
 void rotate_right(unsigned int duration)
 {
-  //forward @ full speed B
+  //forward @ speed B
   digitalWrite(13, LOW); //Establishes forward direction of Channel B
   digitalWrite(8, LOW);   //Disengage the Brake for Channel B
-  analogWrite(11, 255);   //Spins the motor on Channel B at full speed
+  analogWrite(11, SPEED);   //Spins the motor on Channel B at speed
   
   delay(duration * DELAY);
   stop();
@@ -539,7 +505,7 @@ void rotate_left(unsigned int duration)
 {
   digitalWrite(12, HIGH); //Establishes forward direction of Channel A
   digitalWrite(9, LOW);   //Disengage the Brake for Channel A
-  analogWrite(3, 255);   //Spins the motor on Channel A at full speed
+  analogWrite(3, SPEED);   //Spins the motor on Channel A at speed
   delay(duration * DELAY);
   stop();
 }
